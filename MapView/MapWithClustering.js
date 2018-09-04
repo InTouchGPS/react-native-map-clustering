@@ -48,6 +48,10 @@ export default class MapWithClustering extends Component {
     this.root.animateToRegion(region);
   }
 
+  animateToCoordinate = (region) => {
+    this.root.animateToCoordinate(region);
+  }
+
   createMarkersOnMap = () => {
     const markers = [];
     const otherChildren = [];
@@ -73,7 +77,7 @@ export default class MapWithClustering extends Component {
     if (!this.superCluster) {
       this.superCluster = SuperCluster({
         radius: this.props.radius,
-        maxZoom: 20,
+        maxZoom: 7, //Min zoom to show all makers
         minZoom: 1,
       });
     }
