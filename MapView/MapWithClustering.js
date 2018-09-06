@@ -48,8 +48,16 @@ export default class MapWithClustering extends Component {
     this.root.animateToRegion(region);
   }
 
+  animateToRegion = (region, val) => {
+    this.root.animateToRegion(region, val);
+  }
+
   animateToCoordinate = (region) => {
     this.root.animateToCoordinate(region);
+  }
+
+  animateToCoordinate = (region, val) => {
+    this.root.animateToCoordinate(region, val);
   }
 
   createMarkersOnMap = () => {
