@@ -6,8 +6,11 @@ import SuperCluster from 'supercluster';
 import CustomMarker from './CustomMarker';
 
 export default class MapWithClustering extends Component {
+
+  allowUpdates = true;
+
   state = {
-    currentRegion: this.props.region,
+    currentRegion: this.props.initialRegion,
     clusterStyle: {
       borderRadius: w(15),
       backgroundColor: this.props.clusterColor,
@@ -26,11 +29,15 @@ export default class MapWithClustering extends Component {
   };
 
   componentDidMount() {
+
     this.createMarkersOnMap();
+
   }
 
-  componentWillReceiveProps() {
+  componentWillReceiveProps(nextProps) {
+
     this.createMarkersOnMap();
+
   }
 
   onRegionChangeComplete = (region) => {
@@ -45,7 +52,20 @@ export default class MapWithClustering extends Component {
   };
 
   animateToRegion = (region) => {
+    //console.log('region animation request');
     this.root.animateToRegion(region);
+  }
+
+  animateToRegion = (region, val) => {
+    this.root.animateToRegion(region, val);
+  }
+
+  animateToCoordinate = (region) => {
+    this.root.animateToCoordinate(region);
+  }
+
+  animateToCoordinate = (region, val) => {
+    this.root.animateToCoordinate(region, val);
   }
 
   createMarkersOnMap = () => {
@@ -73,8 +93,8 @@ export default class MapWithClustering extends Component {
     if (!this.superCluster) {
       this.superCluster = SuperCluster({
         radius: this.props.radius,
-        maxZoom: 20,
-        minZoom: 1,
+        maxZoom: 7, //Min zoom to show all makers
+        minZoom: 0,
       });
     }
     this.superCluster.load(markers);
@@ -120,8 +140,13 @@ export default class MapWithClustering extends Component {
   calculateClustersForMap = async (currentRegion = this.state.currentRegion) => {
     let clusteredMarkers = [];
 
+    // console.log('allow updates: ' + this.allowUpdates);
+    // if (!this.allowUpdates)
+    //   return;
+
+    //this.allowUpdates = false;
     if (this.props.clustering && this.superCluster) {
-      const bBox = this.calculateBBox(this.state.currentRegion);
+      const bBox = this.calculateBBox(currentRegion);
       let zoom = this.getBoundsZoomLevel(bBox, { height: h(100), width: w(100) });
       const clusters = await this.superCluster.getClusters([bBox[0], bBox[1], bBox[2], bBox[3]], zoom);
 
@@ -139,10 +164,22 @@ export default class MapWithClustering extends Component {
       clusteredMarkers = this.state.markers.map(marker => marker.marker);
     }
 
+    //console.log(currentRegion.latitude, currentRegion.longitude);
+
+    console.log('updating markers, have length: ' + clusteredMarkers.length);
+
     this.setState({
-      clusteredMarkers,
-      currentRegion,
+      clusteredMarkers, currentRegion
     });
+
+    // this.setState({
+    //   clusteredMarkers,
+    //   currentRegion,
+    // });
+
+    // setTimeout(() => {
+    //   this.allowUpdates = true;
+    // }, 1000);
   };
 
   removeChildrenFromProps = (props) => {
@@ -160,7 +197,7 @@ export default class MapWithClustering extends Component {
       <MapView
         {...this.removeChildrenFromProps(this.props)}
         ref={(ref) => { this.root = ref; }}
-        region={this.state.currentRegion}
+        initialRegion={this.props.initialRegion}
         onRegionChangeComplete={this.onRegionChangeComplete}
       >
         {this.state.clusteredMarkers}
