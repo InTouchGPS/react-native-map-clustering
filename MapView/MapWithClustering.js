@@ -36,7 +36,7 @@ export default class MapWithClustering extends Component {
 
   componentWillReceiveProps(nextProps) {
 
-    this.createMarkersOnMap();
+    this.createMarkersOnMap(nextProps);
 
   }
 
@@ -68,11 +68,11 @@ export default class MapWithClustering extends Component {
     this.root.animateToCoordinate(region, val);
   }
 
-  createMarkersOnMap = () => {
+  createMarkersOnMap = (props = this.props) => {
     const markers = [];
     const otherChildren = [];
 
-    React.Children.forEach(this.props.children, (marker) => {
+    React.Children.forEach(props.children, (marker) => {
       if (marker && marker.props && marker.props.coordinate) {
         markers.push({
           marker,
