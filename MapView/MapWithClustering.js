@@ -110,7 +110,7 @@ export default class MapWithClustering extends Component {
   calculateBBox = region => [
     region.longitude - region.longitudeDelta, // westLng - min lng
     region.latitude - region.latitudeDelta, // southLat - min lat
-    region.longitude + region.longitudeDelta , // eastLng - max lng
+    region.longitude + region.longitudeDelta, // eastLng - max lng
     region.latitude + region.latitudeDelta// northLat - max lat
   ];
 
@@ -149,6 +149,116 @@ export default class MapWithClustering extends Component {
       const bBox = this.calculateBBox(currentRegion);
       let zoom = this.getBoundsZoomLevel(bBox, { height: h(100), width: w(100) });
       const clusters = await this.superCluster.getClusters([bBox[0], bBox[1], bBox[2], bBox[3]], zoom);
+
+      console.log("zoom: ", zoom)
+
+      if (zoom > 11) {
+
+        let currentMarkers = this.state.markers;
+
+        clusters.map((item) => {
+          //validate is a cluster
+          if (item.properties.cluster) {
+
+            //get childs from cluster
+            let itemsCluster = this.superCluster.getLeaves(item.properties.cluster_id, Infinity)
+
+            //calculate distance factor from zoom
+            var distanceFactor = 1;
+            switch (zoom) {
+              case 12:
+                distanceFactor = 135;
+                break;
+              case 13:
+                distanceFactor = 70;
+                break;
+              case 14:
+                distanceFactor = 40;
+                break;
+              case 15:
+                distanceFactor = 20;
+                break;
+              case 16:
+                distanceFactor = 10;
+                break;
+            }
+
+            var distance = distanceFactor;
+            //intial values
+            var angle = 45;
+            var factor = 45;
+            var radius = 6371e3; //radius of the earth
+
+            itemsCluster.map(itemMarker => {
+
+              var index = 0;
+
+              //loop the marker 
+              currentMarkers.map(marker => {
+
+                if (itemMarker.marker.key === marker.marker.key) {
+
+                  let lat1 = item.geometry.coordinates[1]
+                  let long1 = item.geometry.coordinates[0]
+
+                  var delta = distance / radius,
+                    theta = lat1 * (Math.PI / 180.0),
+                    phi = long1 * (Math.PI / 180.0),
+                    gamma = angle * (Math.PI / 180.0);
+
+                  // calculate sines and cosines
+                  var c_theta = Math.cos(theta), s_theta = Math.sin(theta);
+                  var c_phi = Math.cos(phi), s_phi = Math.sin(phi);
+                  var c_delta = Math.cos(delta), s_delta = Math.sin(delta);
+                  var c_gamma = Math.cos(gamma), s_gamma = Math.sin(gamma);
+
+                  // calculate end vector
+                  var x = c_delta * c_theta * c_phi - s_delta * (s_theta * c_phi * c_gamma + s_phi * s_gamma);
+                  var y = c_delta * c_theta * s_phi - s_delta * (s_theta * s_phi * c_gamma - c_phi * s_gamma);
+                  var z = s_delta * c_theta * c_gamma + c_delta * s_theta;
+
+                  // calculate end lat long
+                  var theta2 = Math.asin(z), phi2 = Math.atan2(y, x);
+
+                  var latT1 = theta2 * (180.0 / Math.PI);
+                  var lonT1 = phi2 * (180.0 / Math.PI);
+
+                  let coordinates = [{
+                    longitude: long1,
+                    latitude: lat1
+                  },
+                  {
+                    longitude: lonT1,
+                    latitude: latT1
+                  }]
+
+                  var clonedElementWithMoreProps = React.cloneElement(
+                    itemMarker.marker,
+                    { overlap: { "isOverlap": true, coordinates: coordinates } }
+                  );
+
+                  //overwrite marker info
+                  itemMarker.marker = clonedElementWithMoreProps
+
+                }
+                index++;
+
+              })
+
+              angle += factor;
+              //
+              if (angle > 360) {
+                angle -= (360 + 30);
+                distance += distanceFactor;
+                factor = factor - 15;
+              }
+
+            })
+          }
+        })
+
+        clusters = currentMarkers;
+      }
 
       clusteredMarkers = clusters.map(cluster => (<CustomMarker
         pointCount={cluster.properties.point_count}
@@ -229,5 +339,5 @@ MapWithClustering.defaultProps = {
   clusterBorderColor: '#FF5252',
   clusterBorderWidth: 1,
   clusterTextSize: totalSize(2.4),
-  onClusterPress: () => {},
+  onClusterPress: () => { },
 };
