@@ -152,7 +152,7 @@ export default class MapWithClustering extends Component {
 
       console.log("zoom: ", zoom)
 
-      if (zoom > 11) {
+      if (zoom > 10) {
 
         let currentMarkers = this.state.markers;
 
@@ -162,10 +162,17 @@ export default class MapWithClustering extends Component {
 
             //get childs from cluster
             let itemsCluster = this.superCluster.getLeaves(item.properties.cluster_id, Infinity)
+            //console.log("itemsCluster",itemsCluster)
 
             //calculate distance factor from zoom
             var distanceFactor = 1;
             switch (zoom) {
+              case 10:
+                distanceFactor = 200;
+                break;
+              case 11:
+                distanceFactor = 150;
+                break;
               case 12:
                 distanceFactor = 135;
                 break;
@@ -201,27 +208,27 @@ export default class MapWithClustering extends Component {
                   let lat1 = item.geometry.coordinates[1]
                   let long1 = item.geometry.coordinates[0]
 
-                  var delta = distance / radius,
+                  let delta = distance / radius,
                     theta = lat1 * (Math.PI / 180.0),
                     phi = long1 * (Math.PI / 180.0),
                     gamma = angle * (Math.PI / 180.0);
 
                   // calculate sines and cosines
-                  var c_theta = Math.cos(theta), s_theta = Math.sin(theta);
-                  var c_phi = Math.cos(phi), s_phi = Math.sin(phi);
-                  var c_delta = Math.cos(delta), s_delta = Math.sin(delta);
-                  var c_gamma = Math.cos(gamma), s_gamma = Math.sin(gamma);
+                  let c_theta = Math.cos(theta), s_theta = Math.sin(theta);
+                  let c_phi = Math.cos(phi), s_phi = Math.sin(phi);
+                  let c_delta = Math.cos(delta), s_delta = Math.sin(delta);
+                  let c_gamma = Math.cos(gamma), s_gamma = Math.sin(gamma);
 
                   // calculate end vector
-                  var x = c_delta * c_theta * c_phi - s_delta * (s_theta * c_phi * c_gamma + s_phi * s_gamma);
-                  var y = c_delta * c_theta * s_phi - s_delta * (s_theta * s_phi * c_gamma - c_phi * s_gamma);
-                  var z = s_delta * c_theta * c_gamma + c_delta * s_theta;
+                  let x = c_delta * c_theta * c_phi - s_delta * (s_theta * c_phi * c_gamma + s_phi * s_gamma);
+                  let y = c_delta * c_theta * s_phi - s_delta * (s_theta * s_phi * c_gamma - c_phi * s_gamma);
+                  let z = s_delta * c_theta * c_gamma + c_delta * s_theta;
 
                   // calculate end lat long
-                  var theta2 = Math.asin(z), phi2 = Math.atan2(y, x);
+                  let theta2 = Math.asin(z), phi2 = Math.atan2(y, x);
 
-                  var latT1 = theta2 * (180.0 / Math.PI);
-                  var lonT1 = phi2 * (180.0 / Math.PI);
+                  let latT1 = theta2 * (180.0 / Math.PI);
+                  let lonT1 = phi2 * (180.0 / Math.PI);
 
                   let coordinates = [{
                     longitude: long1,
@@ -232,13 +239,17 @@ export default class MapWithClustering extends Component {
                     latitude: latT1
                   }]
 
-                  var clonedElementWithMoreProps = React.cloneElement(
+                  let cloneMarker = React.cloneElement(
                     itemMarker.marker,
                     { overlap: { "isOverlap": true, coordinates: coordinates } }
                   );
 
-                  //overwrite marker info
-                  itemMarker.marker = clonedElementWithMoreProps
+                  if (cloneMarker.props.quad) {
+                    cloneMarker.props.quad.overlap = true;
+                    cloneMarker.props.quad.alt = coordinates;
+                  }
+                  
+                  itemMarker.marker = cloneMarker
 
                 }
                 index++;
