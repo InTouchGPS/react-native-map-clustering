@@ -28,19 +28,27 @@ export default class MapWithClustering extends Component {
     },
   };
 
-  componentDidMount() {
 
+
+  componentDidMount() {
+    console.log('adding componentDidMount log');
     this.createMarkersOnMap();
 
   }
 
   componentWillReceiveProps(nextProps) {
-    console.log('peer component will receive props');
+    console.log('clustering engine receiving new props');
     this.createMarkersOnMap(nextProps);
 
   }
 
+  getMapBoundaries = () => {
+    return this.root.getMapBoundaries();
+  }
+
   onRegionChangeComplete = (region) => {
+    console.log('region change complete');
+
     const { latitude, latitudeDelta, longitude, longitudeDelta } = this.state.currentRegion;
     if (region.longitudeDelta <= 80) {
       if ((Math.abs(region.latitudeDelta - latitudeDelta) > latitudeDelta / 8)
@@ -66,10 +74,6 @@ export default class MapWithClustering extends Component {
 
   animateToCoordinate = (region, val) => {
     this.root.animateToCoordinate(region, val);
-  }
-
-  getMapBoundaries = () => {
-    return this.root.getMapBoundaries();
   }
 
   createMarkersOnMap = (props = this.props) => {
@@ -144,11 +148,6 @@ export default class MapWithClustering extends Component {
   calculateClustersForMap = async (currentRegion = this.state.currentRegion) => {
     let clusteredMarkers = [];
 
-    // console.log('allow updates: ' + this.allowUpdates);
-    // if (!this.allowUpdates)
-    //   return;
-
-    //this.allowUpdates = false;
     if (this.props.clustering && this.superCluster) {
       const bBox = this.calculateBBox(currentRegion);
       let zoom = this.getBoundsZoomLevel(bBox, { height: h(100), width: w(100) });
@@ -197,6 +196,8 @@ export default class MapWithClustering extends Component {
   };
 
   render() {
+    console.log('rerendering map');
+
     return (
       <MapView
         {...this.removeChildrenFromProps(this.props)}
