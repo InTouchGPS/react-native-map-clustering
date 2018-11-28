@@ -35,7 +35,7 @@ export default class MapWithClustering extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-
+    console.log('peer component will receive props');
     this.createMarkersOnMap(nextProps);
 
   }
@@ -66,6 +66,10 @@ export default class MapWithClustering extends Component {
 
   animateToCoordinate = (region, val) => {
     this.root.animateToCoordinate(region, val);
+  }
+
+  getMapBoundaries = () => {
+    return this.root.getMapBoundaries();
   }
 
   createMarkersOnMap = (props = this.props) => {
