@@ -57,6 +57,10 @@ export default class MapWithClustering extends Component {
         this.calculateClustersForMap(region);
       }
     }
+
+    if (this.props.onRegionChangeComplete)
+      this.props.onRegionChangeComplete(region);
+  
   };
 
   animateToRegion = (region) => {
