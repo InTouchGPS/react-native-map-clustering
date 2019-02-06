@@ -31,13 +31,11 @@ export default class MapWithClustering extends Component {
 
 
   componentDidMount() {
-    console.log('adding componentDidMount log');
     this.createMarkersOnMap();
 
   }
 
   componentWillReceiveProps(nextProps) {
-    console.log('clustering engine receiving new props');
     this.createMarkersOnMap(nextProps);
 
   }
@@ -47,7 +45,6 @@ export default class MapWithClustering extends Component {
   }
 
   onRegionChangeComplete = (region) => {
-    console.log('region change complete');
 
     const { latitude, latitudeDelta, longitude, longitudeDelta } = this.state.currentRegion;
     if (region.longitudeDelta <= 80) {
@@ -60,11 +57,10 @@ export default class MapWithClustering extends Component {
 
     if (this.props.onRegionChangeComplete)
       this.props.onRegionChangeComplete(region);
-  
+
   };
 
   animateToRegion = (region) => {
-    //console.log('region animation request');
     this.root.animateToRegion(region);
   }
 
@@ -171,10 +167,6 @@ export default class MapWithClustering extends Component {
       clusteredMarkers = this.state.markers.map(marker => marker.marker);
     }
 
-    //console.log(currentRegion.latitude, currentRegion.longitude);
-
-    console.log('updating markers, have length: ' + clusteredMarkers.length);
-
     this.setState({
       clusteredMarkers, currentRegion
     });
@@ -200,7 +192,6 @@ export default class MapWithClustering extends Component {
   };
 
   render() {
-    console.log('rerendering map');
 
     return (
       <MapView
