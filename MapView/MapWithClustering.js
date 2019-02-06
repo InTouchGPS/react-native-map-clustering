@@ -116,10 +116,10 @@ export default class MapWithClustering extends Component {
   };
 
   calculateBBox = region => [
-    region.longitude - region.longitudeDelta, // westLng - min lng
-    region.latitude - region.latitudeDelta, // southLat - min lat
-    region.longitude + region.longitudeDelta , // eastLng - max lng
-    region.latitude + region.latitudeDelta// northLat - max lat
+    region.longitude - (region.longitudeDelta / 2), // westLng - min lng
+    region.latitude - (region.latitudeDelta / 2), // southLat - min lat
+    region.longitude + (region.longitudeDelta / 2) , // eastLng - max lng
+    region.latitude + (region.latitudeDelta / 2)// northLat - max lat
   ];
 
   getBoundsZoomLevel = (bounds, mapDim) => {
