@@ -12,6 +12,7 @@ export default class CustomMarker extends Component {
     if (this.props.pointCount > 0) {
       return (
         <Marker
+          tracksViewChanges={false}
           coordinate={{
             longitude: this.props.geometry.coordinates[0],
             latitude: this.props.geometry.coordinates[1],
